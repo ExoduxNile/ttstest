@@ -32,7 +32,6 @@ kokoro-onnx==0.4.8
 fastapi
 uvicorn
 EOT
-onnxruntime
 numpy
 
 # Step 4: Download Kokoro TTS model files directly
