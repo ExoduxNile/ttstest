@@ -8,51 +8,37 @@ log() {
     echo "[INFO] $1"
 }
 
-# Step 1: Install uv if not already installed
-log "Installing uv..."
-if ! command -v uv &> /dev/null; then
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    export PATH="$HOME/.cargo/bin:$PATH"
-fi
-uv --version
+# Step 1: Ensure Python 3.12 is active
+log "Setting up Python environment..."
+python3 --version
 
-# Step 2: Set up Python 3.12 environment
-log "Setting up Python 3.12 with uv..."
-uv python pin 3.12
-uv venv
+# Step 2: Create virtual environment
+log "Creating virtual environment..."
+python3 -m venv .venv
 source .venv/bin/activate
 
-# Step 3: Initialize project and configure dependencies
-log "Configuring project with uv..."
-uv init --name kokoro-tts
-cat <<EOT > pyproject.toml
-[project]
-name = "kokoro-tts"
-version = "0.1.0"
-dependencies = [
-    "kokoro>=0.9.4",
-    "soundfile",
-    "misaki[en]",
-    "fastapi",
-    "uvicorn",
-]
-
-[tool.uv]
-python = "3.12"
+# Step 3: Configure dependencies with requirements.txt
+log "Configuring dependencies..."
+cat <<EOT > requirements.txt
+kokoro>=0.9.4
+soundfile
+misaki[en]
+fastapi
+uvicorn
 EOT
 
 # Step 4: Download Kokoro TTS model files directly
 log "Downloading Kokoro TTS model files..."
 if [ ! -f "voices-v1.0.bin" ]; then
-    uv run wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/voices-v1.0.bin
+    wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/voices-v1.0.bin
 fi
 if [ ! -f "kokoro-v1.0.onnx" ]; then
-    uv run wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/kokoro-v1.0.onnx
+    wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/kokoro-v1.0.onnx
 fi
 
-# Step 5: Install dependencies
-log "Installing dependencies with uv..."
-uv sync
+# Step 5: Install dependencies with pip
+log "Installing dependencies with pip..."
+pip install -r requirements.txt
 
 # Step 6: Create FastAPI application
 log "Creating FastAPI application..."
@@ -94,6 +80,6 @@ echo "python-3.12.0" > runtime.txt
 # Step 9: Verify setup
 log "Verifying setup..."
 ls -l voices-v1.0.bin kokoro-v1.0.onnx main.py Procfile runtime.txt
-uv run python -m pip list
+pip list
 
 log "Setup complete! Ready for deployment on Render."
