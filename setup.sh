@@ -31,7 +31,7 @@ kokoro-onnx==0.4.8
 # Removed unnecessary dependencies
 # sounddevice  # Not used in main.py
 # PyMuPDF      # Redundant with pymupdf4llm
-#EOT
+EOT
 
 # Step 4: Skip downloading Kokoro TTS model files to save memory
 log "Skipping download of Kokoro TTS model files to reduce memory usage"
