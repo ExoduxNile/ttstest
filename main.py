@@ -8,7 +8,6 @@ from ebooklib import epub, ITEM_DOCUMENT
 from bs4 import BeautifulSoup
 import soundfile as sf
 from kokoro_onnx import Kokoro
-import pymupdf4llm
 import fitz
 import warnings
 import re
@@ -29,8 +28,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize Kokoro model globally
-kokoro = Kokoro("kokoro-v1.0.onnx", "voices-v1.0.bin")
+# Initialize Kokoro model globally with error handling for missing files
+model_path = "kokoro-v1.0.onnx"
+voices_path = "voices-v1.0.bin"
+if not os.path.exists(model_path) or not os.path.exists(voices_path):
+    raise HTTPException(status_code=500, detail=f"Missing model or voice files: {model_path}, {voices_path}")
+kokoro = Kokoro(model_path, voices_path)
 
 def chunk_text(text, initial_chunk_size=1000):
     """Split text into chunks at sentence boundaries with dynamic sizing."""

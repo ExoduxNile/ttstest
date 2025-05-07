@@ -22,16 +22,16 @@ log "Configuring dependencies..."
 cat <<EOT > requirements.txt
 kokoro>=0.9.4
 kokoro-onnx==0.4.8
-fastapi
-uvicorn
-soundfile
-beautifulsoup4
-pymupdf4llm
-ebooklib
+#fastapi
+#uvicorn
+#soundfile
+#beautifulsoup4
+#PyMuPDF
+#ebooklib
 # Removed unnecessary dependencies
 # sounddevice  # Not used in main.py
 # PyMuPDF      # Redundant with pymupdf4llm
-EOT
+#EOT
 
 # Step 4: Skip downloading Kokoro TTS model files to save memory
 log "Skipping download of Kokoro TTS model files to reduce memory usage"
