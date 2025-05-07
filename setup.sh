@@ -35,10 +35,10 @@ EOT
 log "Skipping download of Kokoro TTS model files to reduce memory usage"
 # Optionally, add logic to download specific files manually later
 # Download either voices.json or voices.bin (bin is preferred)
-wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/voices-v1.0.bin
+#wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/voices-v1.0.bin
 
 # Download the model
-wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/kokoro-v1.0.onnx
+#wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/kokoro-v1.0.onnx
 
 # Step 5: Install dependencies with pip
 log "Installing dependencies with pip..."
