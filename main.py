@@ -1,23 +1,18 @@
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi import FastAPI, Form, HTTPException
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import io
 import numpy as np
-from ebooklib import epub, ITEM_DOCUMENT
-from bs4 import BeautifulSoup
 import soundfile as sf
 from kokoro_onnx import Kokoro
-import fitz
 import warnings
 import re
-import pymupdf4llm
-
 import asyncio
 
 # Suppress warnings
-warnings.filterwarnings("ignore", category=UserWarning, module='ebooklib')
-warnings.filterwarnings("ignore", category=FutureWarning, module='ebooklib')
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 app = FastAPI()
 
@@ -119,31 +114,6 @@ def validate_voice(voice):
         raise HTTPException(status_code=400, detail=f"Unsupported voice: {voice}. Supported: {', '.join(sorted(supported_voices))}")
     return voice
 
-def extract_text_from_epub(epub_content):
-    """Extract text from EPUB file content."""
-    with open("temp.epub", "wb") as f:
-        f.write(epub_content)
-    book = epub.read_epub("temp.epub")
-    full_text = ""
-    for item in book.get_items():
-        if item.get_type() == ITEM_DOCUMENT:
-            soup = BeautifulSoup(item.get_body_content(), "html.parser")
-            full_text += soup.get_text()
-    os.remove("temp.epub")
-    return full_text
-
-def extract_text_from_pdf(pdf_content):
-    """Extract text from PDF file content."""
-    with open("temp.pdf", "wb") as f:
-        f.write(pdf_content)
-    doc = fitz.open("temp.pdf")
-    full_text = ""
-    for page in doc:
-        full_text += page.get_text()
-    doc.close()
-    os.remove("temp.pdf")
-    return full_text
-
 async def process_chunk_sequential(chunk, voice, speed, lang):
     """Process a single chunk of text sequentially."""
     try:
@@ -207,72 +177,6 @@ async def text_to_speech(
         raise HTTPException(status_code=400, detail="Format must be 'wav' or 'mp3'")
     lang = validate_language(lang)
     voice = validate_voice(voice)
-    chunks = chunk_text(text, initial_chunk_size=1000)
-    all_samples = []
-    sample_rate = None
-    for chunk in chunks:
-        samples, sr = await process_chunk_sequential(chunk, voice, speed, lang)
-        if samples is not None:
-            if sample_rate is None:
-                sample_rate = sr
-            all_samples.extend(samples)
-    if not all_samples:
-        raise HTTPException(status_code=500, detail="No audio generated")
-    buffer = io.BytesIO()
-    sf.write(buffer, all_samples, sample_rate, format=format)
-    buffer.seek(0)
-    return StreamingResponse(buffer, media_type=f"audio/{format}", headers={"Content-Disposition": f"attachment; filename=output.{format}"})
-
-@app.post("/upload-epub")
-async def upload_epub(
-    file: UploadFile = File(...),
-    voice: str = Form("af_sarah"),
-    speed: float = Form(1.0),
-    lang: str = Form("en-us"),
-    format: str = Form("wav")
-):
-    """Convert EPUB to speech."""
-    if not file.filename.endswith(".epub"):
-        raise HTTPException(status_code=400, detail="File must be an EPUB")
-    if format not in ["wav", "mp3"]:
-        raise HTTPException(status_code=400, detail="Format must be 'wav' or 'mp3'")
-    lang = validate_language(lang)
-    voice = validate_voice(voice)
-    content = await file.read()
-    text = extract_text_from_epub(content)
-    chunks = chunk_text(text, initial_chunk_size=1000)
-    all_samples = []
-    sample_rate = None
-    for chunk in chunks:
-        samples, sr = await process_chunk_sequential(chunk, voice, speed, lang)
-        if samples is not None:
-            if sample_rate is None:
-                sample_rate = sr
-            all_samples.extend(samples)
-    if not all_samples:
-        raise HTTPException(status_code=500, detail="No audio generated")
-    buffer = io.BytesIO()
-    sf.write(buffer, all_samples, sample_rate, format=format)
-    buffer.seek(0)
-    return StreamingResponse(buffer, media_type=f"audio/{format}", headers={"Content-Disposition": f"attachment; filename=output.{format}"})
-
-@app.post("/upload-pdf")
-async def upload_pdf(
-    file: UploadFile = File(...),
-    voice: str = Form("af_sarah"),
-    speed: float = Form(1.0),
-    lang: str = Form("en-us"),
-    format: str = Form("wav")
-):
-    """Convert PDF to speech."""
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="File must be a PDF")
-    if format not in ["wav", "mp3"]:
-        raise HTTPException(status_code=400, detail="Format must be 'wav' or 'mp3'")
-    lang = validate_language(lang)
-    voice = validate_voice(voice)
-    content = await file.read()
-    text = extract_text_from_pdf(content)
     chunks = chunk_text(text, initial_chunk_size=1000)
     all_samples = []
     sample_rate = None
