@@ -8,12 +8,7 @@ log() {
     echo "[INFO] $1"
 }
 
-# Step 1: Install system dependencies
-log "Installing system dependencies..."
-sudo apt-get update
-sudo apt-get install -y git-lfs espeak-ng
-
-# Step 2: Install uv if not already installed
+# Step 1: Install uv if not already installed
 log "Installing uv..."
 if ! command -v uv &> /dev/null; then
     curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -21,13 +16,13 @@ if ! command -v uv &> /dev/null; then
 fi
 uv --version
 
-# Step 3: Set up Python 3.12 environment
+# Step 2: Set up Python 3.12 environment
 log "Setting up Python 3.12 with uv..."
 uv python pin 3.12
 uv venv
 source .venv/bin/activate
 
-# Step 4: Initialize project and configure dependencies
+# Step 3: Initialize project and configure dependencies
 log "Configuring project with uv..."
 uv init --name kokoro-tts
 cat <<EOT > pyproject.toml
@@ -46,26 +41,20 @@ dependencies = [
 python = "3.12"
 EOT
 
-# Step 5: Clone Kokoro TTS repository and model files
-log "Cloning Kokoro TTS repository..."
-if [ ! -d "kokoro-tts" ]; then
-    git clone https://github.com/nazdridoy/kokoro-tts.git
-    cd kokoro-tts
-    git lfs install
-    git lfs pull
-    cd ..
+# Step 4: Download Kokoro TTS model files directly
+log "Downloading Kokoro TTS model files..."
+if [ ! -f "voices-v1.0.bin" ]; then
+    uv run wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/voices-v1.0.bin
+fi
+if [ ! -f "kokoro-v1.0.onnx" ]; then
+    uv run wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/kokoro-v1.0.onnx
 fi
 
-# Step 6: Copy model files to project root
-log "Copying model files..."
-cp kokoro-tts/voices-v1.0.bin .
-cp kokoro-tts/kokoro-v1.0.onnx .
-
-# Step 7: Install dependencies
+# Step 5: Install dependencies
 log "Installing dependencies with uv..."
 uv sync
 
-# Step 8: Create FastAPI application
+# Step 6: Create FastAPI application
 log "Creating FastAPI application..."
 cat <<EOT > main.py
 from fastapi import FastAPI
@@ -94,15 +83,15 @@ async def root():
     return {"message": "Kokoro TTS API"}
 EOT
 
-# Step 9: Create Procfile for Render
+# Step 7: Create Procfile for Render
 log "Creating Procfile..."
 echo "web: uvicorn main:app --host 0.0.0.0 --port \$PORT" > Procfile
 
-# Step 10: Create runtime.txt for Python version
+# Step 8: Create runtime.txt for Python version
 log "Creating runtime.txt..."
 echo "python-3.12.0" > runtime.txt
 
-# Step 11: Verify setup
+# Step 9: Verify setup
 log "Verifying setup..."
 ls -l voices-v1.0.bin kokoro-v1.0.onnx main.py Procfile runtime.txt
 uv run python -m pip list
