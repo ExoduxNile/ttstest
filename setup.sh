@@ -26,9 +26,6 @@ fastapi
 uvicorn
 soundfile
 beautifulsoup4
-PyMuPDF
-ebooklib
-pymupdf4llm
 # Removed unnecessary dependencies
 # sounddevice  # Not used in main.py
 # PyMuPDF      # Redundant with pymupdf4llm
