@@ -11,6 +11,8 @@ from kokoro_onnx import Kokoro
 import fitz
 import warnings
 import re
+import pymupdf4llm
+
 import asyncio
 
 # Suppress warnings
