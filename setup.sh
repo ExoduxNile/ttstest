@@ -22,6 +22,13 @@ log "Configuring dependencies..."
 cat <<EOT > requirements.txt
 kokoro>=0.9.4
 soundfile
+beautifulsoup4
+pymupdf4llm
+sounddevice
+PyMuPDF
+soundfile
+ebooklib
+kokoro-onnx==0.4.8
 misaki[en]
 fastapi
 uvicorn
