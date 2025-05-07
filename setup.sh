@@ -22,12 +22,13 @@ log "Configuring dependencies..."
 cat <<EOT > requirements.txt
 kokoro>=0.9.4
 kokoro-onnx==0.4.8
-#fastapi
-#uvicorn
-#soundfile
-#beautifulsoup4
-#PyMuPDF
-#ebooklib
+fastapi
+uvicorn
+soundfile
+beautifulsoup4
+PyMuPDF
+ebooklib
+pymupdf4llm
 # Removed unnecessary dependencies
 # sounddevice  # Not used in main.py
 # PyMuPDF      # Redundant with pymupdf4llm
