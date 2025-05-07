@@ -29,7 +29,6 @@ PyMuPDF
 soundfile
 ebooklib
 kokoro-onnx==0.4.8
-misaki[en]
 fastapi
 uvicorn
 EOT
