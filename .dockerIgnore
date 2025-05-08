@@ -1,0 +1,15 @@
+.git
+*.md
+*.pyc
+__pycache__
+*.log
+.env
+tests/
+docs/
+.gitignore
+*.bak
+*.swp
+venv/
+.venv/
+*.zip
+*.tar.gz

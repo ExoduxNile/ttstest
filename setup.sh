@@ -20,33 +20,29 @@ source .venv/bin/activate
 # Step 3: Configure dependencies with requirements.txt
 log "Configuring dependencies..."
 cat <<EOT > requirements.txt
-kokoro>=0.9.4
-kokoro-onnx==0.4.8
+kokoro-onnx==0.3.9
+soundfile
 fastapi
 uvicorn
-soundfile
-beautifulsoup4
-# Removed unnecessary dependencies
-# sounddevice  # Not used in main.py
-# PyMuPDF      # Redundant with pymupdf4llm
+numpy
+kokoro>=0.9.4
 EOT
 
-# Step 4: Skip downloading Kokoro TTS model files to save memory
-log "Skipping download of Kokoro TTS model files to reduce memory usage"
-# Optionally, add logic to download specific files manually later
-# Download either voices.json or voices.bin (bin is preferred)
-#wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/voices-v1.0.bin
+# Step 4: Verify model and voice files (assumed provided in repository)
+log "Verifying Kokoro TTS model and voice files..."
+MODEL_FILE="kokoro-v1.0.onnx"
+VOICES_FILE="voices-v1.0.bin"
+if [ ! -f "$MODEL_FILE" ] || [ ! -f "$VOICES_FILE" ]; then
+    log "Error: Model file ($MODEL_FILE) or voices file ($VOICES_FILE) not found in repository"
+    exit 1
+fi
 
-# Download the model
-#wget https://github.com/nazdridoy/kokoro-tts/releases/download/v1.0.0/kokoro-v1.0.onnx
-
-# Step 5: Install dependencies with pip
+# Step 5: Install dependencies with pip (optimized for low memory)
 log "Installing dependencies with pip..."
-pip install -r requirements.txt
+pip install --no-cache-dir -r requirements.txt
 
-# Step 6: Assume main.py is provided in the repository (use uploaded main.py)
-log "Using provided main.py for FastAPI application"
-# Ensure main.py exists in the repository; no need to create a new one
+# Step 6: Verify main.py exists
+log "Verifying main.py..."
 if [ ! -f "main.py" ]; then
     log "Error: main.py not found in repository"
     exit 1
