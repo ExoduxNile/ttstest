@@ -41,6 +41,6 @@ COPY main.py . COPY --from=builder /app/kokoro-v1.0.onnx . COPY --from=builder /
 
 Activate virtual environment and set entrypoint
 
-ENV PATH="/app/.venv/bin:$PATH" EXPOSE 8080
+ENV PATH="/app/.venv/bin:$PATH" EXPOSE=8080
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
