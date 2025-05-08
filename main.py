@@ -19,7 +19,7 @@ app = FastAPI()
 # Add CORS middleware for external form access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://tropley.com"],  # Adjust for specific origins in production
+    allow_origins=["*"],  # Adjust for specific origins in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -39,13 +39,13 @@ def chunk_text(text, initial_chunk_size=1000):
     current_chunk = []
     current_size = 0
     chunk_size = initial_chunk_size
-    
+
     for sentence in sentences:
         if not sentence.strip():
             continue
         sentence = sentence.strip() + '.'
         sentence_size = len(sentence)
-        
+
         if sentence_size > chunk_size:
             words = sentence.split()
             current_piece = []
@@ -63,18 +63,18 @@ def chunk_text(text, initial_chunk_size=1000):
             if current_piece:
                 chunks.append(' '.join(current_piece).strip() + '.')
             continue
-        
+
         if current_size + sentence_size > chunk_size and current_chunk:
             chunks.append(' '.join(current_chunk))
             current_chunk = []
             current_size = 0
-        
+
         current_chunk.append(sentence)
         current_size += sentence_size
-    
+
     if current_chunk:
         chunks.append(' '.join(current_chunk))
-    
+
     return chunks
 
 def validate_language(lang):
