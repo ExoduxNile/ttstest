@@ -11,8 +11,8 @@ import re
 import asyncio
 
 # Suppress warnings
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterWarnings("ignore", category=UserWarning)
+warnings.filterWarnings("ignore", category=FutureWarning)
 
 app = FastAPI()
 

@@ -1,6 +1,6 @@
 # Stage 1: Build dependencies and download model/voice files
 
-FROM python:3.12-slim AS builder
+FROM python:3.12-alpine AS builder
 
 WORKDIR /app
 
@@ -36,7 +36,11 @@ COPY --from=builder /app/.venv .venv
 
 # Copy application files and model/voice files
 
-COPY main.py . COPY --from=builder /app/kokoro-v1.0.onnx . COPY --from=builder /app/voices-v1.0.bin . COPY Procfile . COPY runtime.txt .
+COPY main.py .
+COPY --from=builder /app/kokoro-v1.0.onnx .
+COPY --from=builder /app/voices-v1.0.bin .
+COPY Procfile .
+COPY runtime.txt .
 
 # Activate virtual environment and set entrypoint
 
